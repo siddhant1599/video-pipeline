@@ -1,0 +1,11 @@
+# core environment: ingest, generate, mix, transcribe, compose, render (and the CLI itself)
+# Last run with: Python 3.10, torch 2.x (CPU), numpy 2.2, demucs 4.1.0, faster-whisper 1.2.1, gradio_client 2.7
+PyYAML>=6.0
+numpy>=1.26
+scipy>=1.11
+soundfile>=0.12
+opencv-python-headless>=4.9
+demucs>=4.0.1
+faster-whisper>=1.1
+gradio_client>=1.4
+pytest>=8.0  # only for `python -m pytest tests`

@@ -1,0 +1,121 @@
+# video-pipeline project file. Paths are relative to this file. Every key is explained in docs/config.md.
+# Replace the placeholder file names, shots and lines with your own; nothing here refers to real media.
+
+project:
+  name: my-video            # also the name of the rendered file
+  fps: 24
+  width: 1920
+  height: 1080
+
+# ---------------------------------------------------------------------------
+# Inputs you provide (keep them out of git; see .gitignore)
+# ---------------------------------------------------------------------------
+sources:
+  footage:
+    path: input/footage.mp4      # a video you have the right to use
+    separate: true               # split its speech from its music (needed to reuse or clone the voice)
+
+# ---------------------------------------------------------------------------
+# Shots: each one comes `from` a source, is `generate`d, or is a still `image`
+# ---------------------------------------------------------------------------
+shots:
+  - id: opening
+    from: {source: footage, start: 0.0, end: 4.5}        # seconds; or start_frame / end_frame
+    clean:                                               # remove baked-in text (optional)
+      - {boxes: [[0, 480, 1024, 576]], mode: text}       # [x0, y0, x1, y1] in source pixels
+
+  - id: talking
+    from: {source: footage, start: 5.0, end: 8.75}
+    lipsync: {guidance: 2.0}                             # re-animate the mouth to the new voice line
+    enhance: {face: 0.6}                                 # restore the face after upscaling (0 = off)
+
+  - id: walking
+    generate:                                            # needs HF_TOKEN in the environment
+      image: {shot: talking, frame: -1}                  # start from the last frame of another shot, or a file path
+      prompt: "She stands up and walks toward the camera, natural handheld look"
+      seconds: 5
+      seed: 42
+    smooth: {speed: 0.9}                                 # even out stutter, slow down 10 %, bring to project fps
+    lipsync: {guidance: 2.0}
+    enhance: {face: 0.75}
+
+  - id: product
+    image: {path: input/product.png, zoom: [1.0, 1.1], center: [0.5, 0.4]}   # still with a slow push-in
+    seconds: 2
+
+# ---------------------------------------------------------------------------
+# Voice: lines spoken in the reference voice
+# ---------------------------------------------------------------------------
+voice:
+  reference:
+    clips:                                               # passages of clean speech from a separated source...
+      - {source: footage, start: 0.2, end: 4.3}
+    # path: input/voice_reference.wav                    # ...or a recording of your own
+  defaults: {takes: 4}
+  lines:
+    - id: line1
+      text: "This is the first line she says."
+      max_seconds: 3.5                                   # must fit the shot it plays under
+    - id: line2
+      text: "Call us on 555 010 0199."
+      say: "Call us on five five five, zero one zero, zero one nine nine."   # spell out what should be heard
+
+# ---------------------------------------------------------------------------
+# Soundtrack. Times: seconds, or relative to a shot: talking+0.2, walking.end-1, start+1, end-3
+# ---------------------------------------------------------------------------
+audio:
+  voice:
+    - {source: footage, start: 0.0, end: 4.5, at: opening}    # keep the original speech of the opening
+    - {line: line1, at: talking+0.1}
+    - {line: line2, at: walking+0.3}
+  voice_match:
+    reference: {source: footage, start: 0.2, end: 4.3}        # make new lines sound like this passage
+  music:
+    synth: {bpm: 118, chords: [F, C, Dm, Bb], drums_from: talking}   # built-in bed; or `path: input/music.wav`
+    gain: 0.34
+    duck: 0.17
+  sfx:
+    - {builtin: whoosh, at: walking}
+    - {builtin: ding, at: end-3}
+
+# ---------------------------------------------------------------------------
+# The cut
+# ---------------------------------------------------------------------------
+timeline: [opening, talking, walking, product]
+tail: 3.0                                                # seconds after the last shot (for the end card)
+
+captions:
+  auto: true                                             # from `video-pipeline transcribe`; or list them yourself:
+  # items:
+  #   - {text: "This is the *first line* she says.", start: talking+0.1, end: talking.end}
+
+overlays:
+  - id: how-it-works
+    side: right                                          # left | right | top | bottom
+    size: 800
+    start: walking+0.1
+    end: walking+4.0
+    push_shot: walking                                   # slide the footage aside so the subject stays in view
+    images:
+      - {path: input/screen1.png, alt: "First screen", out: 1.8}
+      - {path: input/screen2.png, alt: "Second screen", in: 2.0}
+
+end_card:
+  start: end-3
+  # logo: input/logo.png
+  brand: "Your brand"
+  lead: "Call us on"
+  headline: "555 010 0199"
+  tagline: "One line that sums it up."
+
+theme:
+  background: "#101014"
+  accent: "#4bd1fb"
+  accent2: "#6a5cfe"
+  # fonts:
+  #   body: {family: "Your Font", files: [{path: input/YourFont.ttf, weight: "400 700"}]}
+  #   display: {family: "Your Display Font", files: [{path: input/YourDisplay.ttf}]}
+
+render:
+  crf: 12
+  share_crf: 18                                          # also write a smaller copy for sharing

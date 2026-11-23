@@ -1,0 +1,63 @@
+# --- environments, downloaded code and weights (rebuilt by scripts/setup_*.sh) ---
+.venvs/
+third_party/
+models/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+
+# --- media: never commit footage, audio or images (yours or anyone else's) ---
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.avi
+*.m4v
+*.gif
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.aac
+*.ogg
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.tif
+*.tiff
+*.ttf
+*.otf
+*.woff
+*.woff2
+
+# --- project folders: inputs, work files and renders stay local ---
+projects/
+input/
+work/
+output/
+renders/
+hyperframes/
+snapshots/
+
+# --- secrets ---
+.env
+.env.*
+*.token
+*.key
+*.pem
+secrets.*
+
+# --- caches and logs ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+*.log
+node_modules/
+.DS_Store
+.idea/
+.vscode/

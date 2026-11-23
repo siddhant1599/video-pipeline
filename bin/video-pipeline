@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Launcher: uses the core environment when it exists, so `./bin/video-pipeline ...` works without activating anything.
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+py="${VIDEO_PIPELINE_PY_CORE:-$here/.venvs/core/bin/python}"
+[ -x "$py" ] || py="$(command -v python3)"
+PYTHONPATH="$here${PYTHONPATH:+:$PYTHONPATH}" exec "$py" -m video_pipeline.cli "$@"

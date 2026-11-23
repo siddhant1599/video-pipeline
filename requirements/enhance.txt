@@ -1,0 +1,9 @@
+# enhance environment: clean (LaMa), smooth (RIFE), enhance (Real-ESRGAN, GFPGAN)
+# Last run with: Python 3.10, torch 2.x (CPU) + matching torchvision, numpy 2.2
+PyYAML>=6.0
+numpy>=1.26
+opencv-python-headless>=4.9
+spandrel==0.4.2
+facexlib==0.3.0
+ccvfi==0.0.3
+simple-lama-inpainting==0.1.0
